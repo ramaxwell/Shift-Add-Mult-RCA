@@ -1,0 +1,44 @@
+Shift-Add multiplier with Ripple-Carry Adder
+-------------------------------------------------
+SAmult-rca is a program used to multiply 
+two N-bit numbers using the shift and add method 
+where a simple ripple-carry algorithm is used for 
+the addition.
+
+Overall, the program performs multiplication of 
+randomly generated 2,3,4,...,32 bit (MAX_BITS)
+values multiple times as denoted by the MAX_RUNS 
+constant. The total delay (in gate delays) as 
+well as cycle count for each bit set is accumulated 
+and reported upon completion.
+
+For instance, initially 2 bit numbers are multiplied, 
+then delay and cycle count are saved in an array. 
+This is done MAX_RUNS times so that an average delay 
+can be calculated upon completion. Then 3 bit numbers, 
+4 bit numbers, all the way to MAX_BITS (32 for the 
+default case) are calculated in the same manner.
+
+Note that the cycle count mentioned above is based
+on a complete cycle of evaluate the mux (2 gate delays), 
+perform the addition (2*num_bits gate delays), and 
+a product register right shift (2 gate delays). So for the 
+RCA implementation the product output delay is static at 
+(2 + 2*num_bits + 2) * gateLatency
+but it is calculated, nonetheless.
+
+Compilation and execution is straight forward but a 
+usage file is included in the repo.
+
+List of files in this repo:
+
+--> usage.txt : 		Description of how to compile and run
+--> SAmult-rca.c : 		Simulation source file
+--> sample-output.txt : Typical output
+--> README :			This readme file
+
+Date: 09/02/2016
+As of this writing, output is sent to stdout and not
+a file.
+
+

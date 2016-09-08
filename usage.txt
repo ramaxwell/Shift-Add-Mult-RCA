@@ -1,0 +1,6 @@
+usage
+----------------
+
+gcc -o SAmult-rca SAmult-rca.c -lm
+
+./SAmult-rca
