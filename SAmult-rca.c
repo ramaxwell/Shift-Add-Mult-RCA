@@ -4,7 +4,19 @@
 		University of Texas at San Antonio
 
  n-bit shift and add multiplier with Ripple-Carry 
-	Full Adders
+Full Adder
+
+ This program generates random multiplier operands, multiplies 
+them using the shift-add algorithm and counts the delays per
+operation. Delay per cycle was used initially but removed
+later since delay is constant for this method; although 
+cycles are still counted
+
+ For this simulator, it is not necessary to use multiple
+random input operands, since the number of delays per 
+operation is constant for a given number of bits. I simply
+recycled some code from project 1 (Carry-completion adder)
+and decided to keep it in.
 
 */
 
@@ -32,11 +44,6 @@ unsigned int evalRCA(int *in1, int *in2, int *out, int numBits){
 		out[m] = in1[m] ^ in2[m] ^ cin;		
 		cout = (in1[m] & in2[m]) | (in1[m] & cin) | (in2[m] & cin);
 		cin = cout;				// Ripple cout to next Cin
-
-		//printf("\t(2d) RCA Carry Delay\n");
-		//printf("\tRCA Intermediate Sum = ");
-		//printOperand(out, numBits);
-
 	}
 
 return cout;
@@ -145,6 +152,7 @@ void shiftREG( int *prodReg, int shamt ){
 }
 /*
 *	compliment all bits and add 1 at the end
+****This method is not necessary and can be removed
 */
 void comp2(int * val, int num_bits){
 
@@ -199,10 +207,6 @@ int main(void){
 	int lastDelay = 0;
 
 	double avgDelay[MAX_BITS];
-	int worstDelay[MAX_BITS];
-	float delayPerCycle;
-	float avgDelayPerCycle[MAX_BITS];
-	//float avgCycles[MAX_BITS];
 
 	int A[ARRAY_SIZE];				
 	int B[ARRAY_SIZE];				
@@ -215,8 +219,6 @@ int main(void){
 	for ( i = 2; i <= MAX_BITS; i++ ) {
 
 		avgDelay[i-2] = 0;
-		avgDelayPerCycle[i-2] = 0;
-		worstDelay[i-2] = 0;
 
 		for(j = 0; j < MAX_RUNS; j++){
 
@@ -255,62 +257,34 @@ int main(void){
 				//printf("-----------------CYCLE %i-----------------------\n", cycles);
 											//1.) evaluate mux based on LSB of product (+2d)
 				mux_ctrl = prod[i*2];			//Get last bit (just shifted out)
-				//printf("(2d) Mux Delay\n");			
 				mux_out = evalMUX(MUX_IN1, A, mux_ctrl);
-				//printf("MUX out = ");
-				//printOperand(mux_out, i);
 				delay += 2;					//MUX Delay
 
 											//2.) evaluate RCA (+2nd)
-			
 				getUpperProd(prod, pProd, i);
 				//printf("-----------------RCA Process---------------\n");
-				//printf("RCA in1 = ");
-				//printOperand(mux_out, i);
-				//printf("RCA in2 = ");
-				//printOperand(pProd, i);
 				carry = evalRCA(pProd, mux_out, S, i);
-				//printf("-------------------------------------------\n");
 				delay += 2*i;				//RCA delay
-				//printf("(%id) RCA Delay\n", 2*i);
 
 											//3.) storeSum
 				insertUpperProd(prod, i, S, carry);		//sum goes in upper half of prod
-				//printf("Intermediate Product = ");
-				//printOperand(prod, 2*i+1);
 
 											//4.) shift Prod Reg (+2d)
 				shiftREG( prod, 1 );
-				//printf("(2d) Shift Delay\n");
 				delay += 2;						//shift delay
 				cycles++;						//new cycle only after
-												//mux,RCA,shift delays
-
-				//printf("Shifted Product      = ");
-				//printOperand(prod, 2*i+1);
-				
+												//mux,RCA,shift delays				
 			}
 
 			avgDelay[i-2] += delay;
-			if(delay > lastDelay)
-				worstDelay[i-2] = delay;
-				lastDelay = delay;
-
-			delayPerCycle = delay/cycles;
-			avgDelayPerCycle[i-2] += delayPerCycle;
 			cycles = 0;
 			delay = 0;
 		}//END FOR LOOP (Each sim run)
 
 		avgDelay[i-2] = avgDelay[i-2]/MAX_RUNS;	
-		//avgCycles[i-2] = avgCycles[i-2]/MAX_RUNS;
-		avgDelayPerCycle[i-2] = avgDelayPerCycle[i-2]/MAX_RUNS;	
 		printf("-------------------------------------\n");
 		printf("Number of bits: %i\n", i);
 		printf("Average Delay = %.3f\n", avgDelay[i-2]);
-		printf("Worst Delay = %i\n", worstDelay[i-2]);
-		//printf("Average Num Cycles = %.3f\n", avgCycles[i-2]);	
-		printf("Average Delay Per Cycle = %.3f\n", avgDelayPerCycle[i-2]);
 
 	}//END FOR LOOP (Each Set of number of bits)
 
